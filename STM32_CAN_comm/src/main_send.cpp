@@ -1,50 +1,41 @@
-// #include <Arduino.h>
-// #include <CAN.h>
+// // CAN Send Example
+// //
 
+// #include <mcp_can.h>
+// #include <SPI.h>
 
-// void setup() {
-//   Serial.begin(9600);
-//   while (!Serial);
-//   pinMode(PA0, INPUT_PULLUP);
+// MCP_CAN CAN0(PA3);     // Set CS to pin 10
+// #define CAN0_INT PA4   // Set INT to pin 2
 
-//   Serial.println("CAN Sender");
-//   CAN.setPins(PA3, PA4);    //CS and INT pin
+// void setup()
+// {
+//   Serial.begin(115200);
 
-//   // start the CAN bus at 500 kbps
-//   if (!CAN.begin(500E3)) {
-//     Serial.println("Starting CAN failed!");
-//     while (1);
-//   }
+//   // Initialize MCP2515 running at 16MHz with a baudrate of 500kb/s and the masks and filters disabled.
+//   if(CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK) 
+//     Serial.println("MCP2515 Initialized Successfully!");
+//   else 
+//     Serial.println("Error Initializing MCP2515...");
+
+//   CAN0.setMode(MCP_NORMAL);   // Change to normal mode to allow messages to be transmitted
 // }
+
+// const char msg[] = "Al Amin";   // 7 bytes of data
+// //byte data[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
 // void loop() {
-//   // send packet: id is 11 bits, packet can contain up to 8 bytes of data
-//   Serial.print("Sending packet ... ");
- 
-//   CAN.beginPacket(0xabcdef);
-//   CAN.write('a');
-//   CAN.write('s');
-//   CAN.write('h');
-//   CAN.write('i');
-//   CAN.write('k');
-//   CAN.endPacket();
+//     //support maximum 8 bytes of data
+//     byte sndStat1 = CAN0.sendMsgBuf(0x100, 0, 7, (byte*)msg); //len should be equal to data
 
-//   Serial.println("done");
+//   if (sndStat1 == CAN_OK) {
+//     Serial.println("Message Sent!");
+//   } else {
+//     Serial.println("Error Sending Frames...");
+//   }
 
 //   delay(1000);
-
-//   // send extended packet: id is 29 bits, packet can contain up to 8 bytes of data
-//   // Serial.print("Sending extended packet ... ");
-
-//   // CAN.beginExtendedPacket(0xabcdef);
-//   // CAN.write('A');
-//   // CAN.write('S');
-//   // CAN.write('H');
-//   // CAN.write('I');
-//   // CAN.write('K');
-//   // CAN.endPacket();
-
-//   // Serial.println("done");
-
-//   // delay(100);
 // }
+
+// /*********************************************************************************************************
+//   END FILE
+// *********************************************************************************************************/

@@ -1,16 +1,18 @@
-// CAN Receive Example
+// CAN Master Example
 //
 
-#include <mcp_can.h>
-#include <SPI.h>
+#include <mcp_can.h>      //add the can library
+#include <SPI.h>          //add SPI communication
 
-long unsigned int rxId;
-unsigned char len = 0;
-unsigned char rxBuf[7];
-char msgString[128];                        // Array to store serial string
+long unsigned int rxId;   //varibale to store the slave address when responded
+unsigned char len = 0;    //varibale to store the length of data sent by slave
+unsigned char rxBuf[7];   //varibale to store the data bytes send by the slaves
 
-#define CAN0_INT 2                              // Set INT to pin 2
-MCP_CAN CAN0(10);                               // Set CS to pin 10
+char msgString[128];      // Array to store serial string
+
+//these two are arduino uno interrupt pins
+#define CAN0_INT 2        // Set INT to pin 2
+MCP_CAN CAN0(10);         // Set CS to pin 10
 
 
 void setup()
@@ -23,17 +25,17 @@ void setup()
   else
     Serial.println("Error Initializing MCP2515...");
   
-  CAN0.setMode(MCP_NORMAL);                     // Set operation mode to normal so the MCP2515 sends acks to received data.
+  CAN0.setMode(MCP_NORMAL);     // Set operation mode to normal so the MCP2515 sends acks to received data.
 
-  pinMode(CAN0_INT, INPUT);                            // Configuring pin for /INT input
+  pinMode(CAN0_INT, INPUT);     // Configuring pin for /INT input //this is low when the line is active (someone is seeking data)
 }
 
 void loop()
 {
   Serial.println("Asking First Slave.");
-  askSlave(0x100);
-  delay(10);
-  if(!digitalRead(CAN0_INT))                         // If CAN0_INT pin is low, read receive buffer
+  askSlave(0x100);    //enter the address of the slave
+  delay(10);          //important otherwise data will propagate by one step.
+  if(!digitalRead(CAN0_INT))            // If CAN0_INT pin is low, read receive buffer
   {
     Serial.println("Slave responded");
     responseFromSlave();
@@ -74,17 +76,17 @@ void loop()
 
 
 void askSlave(uint16_t Addresss){
-  byte sndStat1 = CAN0.sendMsgBuf(Addresss, 0, 1, (byte*)1); //len should be equal to data
+  byte sndStat1 = CAN0.sendMsgBuf(Addresss, 0, 1, (byte*)1); //request with address through the bus //len should be equal to data
 
   if (sndStat1 == CAN_OK) {
-    Serial.println("Message Sent!");
+    Serial.println("Message Sent!");    //message sent without any error (line is OK)
   } else {
     Serial.println("Error Sending Frames..."); //if there is something wrong with can bus
   }
 }
 
 void responseFromSlave(){
-
+    //when any particular slave responds
     CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s)
     
     sprintf(msgString, "Standard ID: 0x%.3lX       DLC: %1d ", rxId, len);
@@ -97,7 +99,7 @@ void responseFromSlave(){
     } else {
       for(byte i = 0; i<len; i++){
         sprintf(msgString, " 0x%.2X", rxBuf[i]);
-        Serial.print(msgString);
+        Serial.print(msgString);    //print the data in bytes
       }
     }
         

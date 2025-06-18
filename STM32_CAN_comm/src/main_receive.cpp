@@ -1,57 +1,57 @@
-// #include <CAN.h>
+// // CAN Receive Example
+// //
+
+// #include <mcp_can.h>
+// #include <SPI.h>
+
+// long unsigned int rxId;
+// unsigned char len = 0;
+// unsigned char rxBuf[7];
+// char msgString[128];                        // Array to store serial string
+
+// #define CAN0_INT 2                              // Set INT to pin 2
+// MCP_CAN CAN0(10);                               // Set CS to pin 10
 
 
-// void onReceive(int packetSize) {
-//   // received a packet
-//   Serial.print("Received ");
+// void setup()
+// {
+//   Serial.begin(115200);
+  
+//   // Initialize MCP2515 running at 16MHz with a baudrate of 500kb/s and the masks and filters disabled.
+//   if(CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_16MHZ) == CAN_OK)
+//     Serial.println("MCP2515 Initialized Successfully!");
+//   else
+//     Serial.println("Error Initializing MCP2515...");
+  
+//   CAN0.setMode(MCP_NORMAL);                     // Set operation mode to normal so the MCP2515 sends acks to received data.
 
-//   if (CAN.packetExtended()) {
-//     Serial.print("extended ");
-//   }
+//   pinMode(CAN0_INT, INPUT);                            // Configuring pin for /INT input
+// }
 
-//   if (CAN.packetRtr()) {
-//     // Remote transmission request, packet contains no data
-//     Serial.print("RTR ");
-//   }
-
-//   Serial.print("packet with id 0x");
-//   Serial.print(CAN.packetId(), HEX);
-
-//   if (CAN.packetRtr()) {
-//     Serial.print(" and requested length ");
-//     Serial.println(CAN.packetDlc());
-//   } else {
-//     Serial.print(" and length ");
-//     Serial.print(packetSize);
-//     Serial.print(": ");
-
-//     // only print packet data for non-RTR packets
-//     while (CAN.available()) {
-//       Serial.print((char)CAN.read());
+// void loop()
+// {
+//   if(!digitalRead(CAN0_INT))                         // If CAN0_INT pin is low, read receive buffer
+//   {
+//     CAN0.readMsgBuf(&rxId, &len, rxBuf);      // Read data: len = data length, buf = data byte(s)
+    
+//     sprintf(msgString, "Standard ID: 0x%.3lX       DLC: %1d ", rxId, len);
+//     Serial.print(msgString); //print ID and length of data
+  
+//     Serial.print("Data: ");
+//     if((rxId & 0x40000000) == 0x40000000){    // Determine if message is a remote request frame.
+//       sprintf(msgString, " REMOTE REQUEST FRAME");
+//       Serial.print(msgString);
+//     } else {
+//       for(byte i = 0; i<len; i++){
+//         sprintf(msgString, " 0x%.2X", rxBuf[i]);
+//         Serial.print(msgString);
+//       }
 //     }
+        
 //     Serial.println();
 //   }
-
-//   //Serial.println();
 // }
 
-
-// void setup() {
-//   Serial.begin(9600);
-//   while (!Serial);
-//   CAN.setPins(PA3, PA4);    //CS and INT pin
-//   Serial.println("CAN Receiver Callback");
-
-//   // start the CAN bus at 500 kbps
-//   if (!CAN.begin(500E3)) {
-//     Serial.println("Starting CAN failed!");
-//     while (1);
-//   }
-
-//   // register the receive callback
-//   CAN.onReceive(onReceive);
-// }
-
-// void loop() {
-//   // do nothing
-// }
+// /*********************************************************************************************************
+//   END FILE
+// *********************************************************************************************************/
