@@ -11,12 +11,15 @@
 
 #include <mcp_can.h>
 #include <SPI.h>
+#include <U8g2lib.h>    // Graphics library for monochrome displays
 
 uint16_t myAddress = 0x100;
 
 long unsigned int rxId;
 unsigned char len = 0;
 unsigned char rxBuf[7];
+
+U8G2_ST7920_128X64_1_HW_SPI u8g2(U8G2_R0, PA3);
 
 MCP_CAN CAN0(PA4);  // Set CS to pin PA4
 #define CAN0_INT PA8 // Set INT to pin PA8
@@ -63,11 +66,23 @@ void setup()
   CAN0.setMode(MCP_NORMAL);                                                // Change to normal mode to allow messages to be transmitted
   attachInterrupt(digitalPinToInterrupt(CAN0_INT), canInterrupt, FALLING); // Attach interrupt to CAN0_INT pin
   // pinMode(CAN0_INT, INPUT);                            // Configuring pin for /INT input
+
+  u8g2.begin(); // Initialize the display
 }
 
 void loop()
 {
-
+      u8g2.firstPage();
+    do {
+        u8g2.setFont(u8g2_font_8x13B_tr); // Large bold font
+        u8g2.setCursor(5, 25);
+        u8g2.print("Steeltech");
+        u8g2.setCursor(4, 40);
+        u8g2.print("Industries");
+        u8g2.setCursor(5, 55);
+        u8g2.print("Limited");
+    } while (u8g2.nextPage());
+    delay(1000); // Delay to allow the display to refresh
 }
 
 /*********************************************************************************************************
